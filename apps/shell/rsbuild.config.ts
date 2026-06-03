@@ -19,10 +19,10 @@ export default defineConfig({
             reactRemote: 'reactRemote@http://localhost:3001/mf-manifest.json',
             vueRemote: 'vueRemote@http://localhost:3002/mf-manifest.json',
             svelteRemote: 'svelteRemote@http://localhost:3003/mf-manifest.json',
-            // Vite remotes using @module-federation/vite (official compatible implementation)
-            reactViteRemote: 'reactViteRemote@http://localhost:3004/mf-manifest.json',
-            vueViteRemote: 'vueViteRemote@http://localhost:3005/mf-manifest.json',
-            svelteViteRemote: 'svelteViteRemote@http://localhost:3006/mf-manifest.json',
+            // Vite remotes - using direct remoteEntry.js for better compatibility
+            reactViteRemote: 'reactViteRemote@http://localhost:3004/remoteEntry.js',
+            vueViteRemote: 'vueViteRemote@http://localhost:3005/remoteEntry.js',
+            svelteViteRemote: 'svelteViteRemote@http://localhost:3006/remoteEntry.js',
           },
           shared: {
             react: {

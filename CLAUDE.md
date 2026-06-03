@@ -21,7 +21,7 @@ See `/apps/README.md` for detailed documentation on the multi-framework setup.
 - **Vue Vite Remote** (port 3005) - Exposes a Vue timeline component
 - **Svelte Vite Remote** (port 3006) - Exposes a Svelte dashboard component
 
-These remotes use `@originjs/vite-plugin-federation` and can be consumed by the same shell app alongside Rsbuild remotes. See `/apps/VITE-REMOTES.md` for details.
+These remotes use `@module-federation/vite` and can be consumed by the same shell app alongside Rsbuild remotes. See `/apps/VITE-REMOTES.md` and `VITE-RSBUILD-COMPAT.md` for details.
 
 ### Rsbuild Implementation (`apps/rsbuild/`)
 - **Host app** - Runs on port 3000, exposes a `ProviderComponent`
@@ -147,16 +147,16 @@ pnpm reset                       # Remove all node_modules
 ## Technology Stack
 
 ### Rsbuild Apps
-- **Build tool**: Rsbuild 2.0.0-beta.2
-- **Framework**: React 19.2.3
+- **Build tool**: Rsbuild 1.7.5
+- **Framework**: React 18.3.1
 - **Language**: TypeScript 5.7.2
 - **Module Federation**: @module-federation/enhanced 2.5.0
 
 ### Vite Apps
-- **Build tool**: Vite 5.4.11
+- **Build tool**: Vite 5.4.21
 - **Frameworks**: React 18.3.1, Vue 3.4.0, Svelte 4.2.0
 - **Language**: TypeScript 5.7.2
-- **Module Federation**: @originjs/vite-plugin-federation 1.4.1
+- **Module Federation**: @module-federation/vite 1.16.2
 
 ### Modern.js Apps
 - **Framework**: Modern.js (canary build)
@@ -166,5 +166,8 @@ pnpm reset                       # Remove all node_modules
 - **Module Federation**: @module-federation/modern-js-v3 2.5.0
 
 ### Common
-- **Module Federation manifest**: Uses `mf-manifest.json` for remote entry discovery
+- **Module Federation manifest**: 
+  - Rsbuild ↔ Rsbuild: Uses `mf-manifest.json` for remote entry discovery
+  - Rsbuild ↔ Vite: Uses direct `remoteEntry.js` for better cross-build-tool compatibility
 - **Type safety**: Automatic federated type generation with `@mf-types`
+- **Compatibility**: See `VITE-RSBUILD-COMPAT.md` for details on cross-build-tool Module Federation

@@ -12,11 +12,11 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
-    "@module-federation/vite": "^1.0.8",
-    "vite": "^5.4.11",
-    "typescript": "^5.7.2",
+    "@module-federation/vite": "^1.16.2",
     "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1"
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11"
   }
 }
