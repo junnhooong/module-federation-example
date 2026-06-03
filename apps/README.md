@@ -1,109 +1,221 @@
-# Module Federation 2.0 Multi-Framework Example
+# Multi-Framework Remotes - Detailed Guide
 
-This directory contains a complete Module Federation 2.0 setup demonstrating micro-frontend architecture across multiple frameworks.
+> **Note**: For a quick overview, see the [main README](../README.md) in the project root.
 
-## Applications
+This directory contains all remote applications for the Module Federation example, including both Rsbuild and Vite implementations.
 
-### Shell App (Port 3000)
-The main orchestrator application built with React. Consumes components from all remote applications.
-
-**Location**: `apps/shell/`
+## 📦 Rsbuild Remotes (Ports 3001-3003)
 
 ### React Remote (Port 3001)
-Exposes a React button component with click counter functionality.
+**Location**: `apps/react-remote/`  
+**Exposed Module**: `./Button`  
+**Component**: Interactive button with click counter  
+**Configuration**: `rsbuild.config.ts` with manifest-based federation
 
-**Location**: `apps/react-remote/`
-**Exposed Module**: `./Button`
-
-### Vue Remote (Port 3002)
-Exposes a Vue counter component with increment/decrement functionality.
-
-**Location**: `apps/vue-remote/`
-**Exposed Module**: `./Counter`
-
-### Svelte Remote (Port 3003)
-Exposes a Svelte card component with flip animation.
-
-**Location**: `apps/svelte-remote/`
-**Exposed Module**: `./Card`
-
-## Getting Started
-
-### Install Dependencies
-```bash
-# From project root
-pnpm install
+```typescript
+// Shell usage
+import Button from 'reactRemote/Button';
 ```
 
-### Running All Applications
+### Vue Remote (Port 3002)
+**Location**: `apps/vue-remote/`  
+**Exposed Module**: `./Counter`  
+**Component**: Counter with increment/decrement  
+**Configuration**: Uses Vue wrapper for React integration
 
-**Option 1: Use the starter script (easiest)**
+```typescript
+// Shell usage
+import Counter from 'vueRemote/Counter';
+```
+
+### Svelte Remote (Port 3003)
+**Location**: `apps/svelte-remote/`  
+**Exposed Module**: `./Card`  
+**Component**: Card with flip animation  
+**Configuration**: Uses Svelte wrapper for React integration
+
+```typescript
+// Shell usage
+import Card from 'svelteRemote/Card';
+```
+
+## ⚡ Vite Remotes (Ports 3004-3006)
+
+### React Vite Remote (Port 3004)
+**Location**: `apps/react-vite-remote/`  
+**Exposed Module**: `./Card`  
+**Component**: Card with likes counter  
+**Configuration**: `vite.config.ts` with `@originjs/vite-plugin-federation`
+
+```typescript
+// Shell usage
+import Card from 'reactViteRemote/Card';
+```
+
+### Vue Vite Remote (Port 3005)
+**Location**: `apps/vue-vite-remote/`  
+**Exposed Module**: `./Timeline`  
+**Component**: Interactive timeline  
+**Configuration**: Vite + Vue with direct entry file
+
+```typescript
+// Shell usage
+import Timeline from 'vueViteRemote/Timeline';
+```
+
+### Svelte Vite Remote (Port 3006)
+**Location**: `apps/svelte-vite-remote/`  
+**Exposed Module**: `./Dashboard`  
+**Component**: Real-time metrics dashboard  
+**Configuration**: Vite + Svelte with direct entry file
+
+```typescript
+// Shell usage
+import Dashboard from 'svelteViteRemote/Dashboard';
+```
+
+## 🏠 Shell App (Port 3000)
+
+**Location**: `apps/shell/`  
+**Role**: Main orchestrator application  
+**Framework**: React (Rsbuild)  
+**Consumes**: All 6 remote applications
+
+The shell app dynamically loads all remote components using React Suspense and lazy imports.
+
+## 🚀 Running Applications
+
+### Quick Start (All Apps)
 ```bash
 # From project root
 ./start-all.sh
 ```
 
-**Option 2: Run manually in separate terminals**
-
-To experience the full Module Federation setup, you need to run all applications simultaneously:
-
+### Individual Apps
 ```bash
-# Terminal 1 - React Remote
-cd apps/react-remote && pnpm dev
+# Rsbuild remotes
+cd apps/react-remote && pnpm dev      # http://localhost:3001
+cd apps/vue-remote && pnpm dev        # http://localhost:3002
+cd apps/svelte-remote && pnpm dev     # http://localhost:3003
 
-# Terminal 2 - Vue Remote
-cd apps/vue-remote && pnpm dev
+# Vite remotes
+cd apps/react-vite-remote && pnpm dev    # http://localhost:3004
+cd apps/vue-vite-remote && pnpm dev      # http://localhost:3005
+cd apps/svelte-vite-remote && pnpm dev   # http://localhost:3006
 
-# Terminal 3 - Svelte Remote
-cd apps/svelte-remote && pnpm dev
-
-# Terminal 4 - Shell App
-cd apps/shell && pnpm dev
+# Shell
+cd apps/shell && pnpm dev             # http://localhost:3000
 ```
 
-### Accessing the Applications
+## 🔧 Key Configuration Differences
 
-- **Shell**: http://localhost:3000 (main application consuming all remotes)
-- **React Remote**: http://localhost:3001 (standalone mode)
-- **Vue Remote**: http://localhost:3002 (standalone mode)
-- **Svelte Remote**: http://localhost:3003 (standalone mode)
+### Rsbuild Configuration
+- Uses `@module-federation/enhanced`
+- Generates `mf-manifest.json`
+- Consumed via: `remoteName@http://localhost:PORT/mf-manifest.json`
+- Requires `dev.assetPrefix` for HMR
 
-## Architecture
+### Vite Configuration
+- Uses `@originjs/vite-plugin-federation`
+- Generates `remoteEntry.js` in `/assets/`
+- Consumed via: `remoteName@http://localhost:PORT/assets/remoteEntry.js`
+- Requires `server.cors: true`
 
-### Module Federation Configuration
+## 🎨 Framework Wrappers
 
-Each remote application exposes specific components that can be consumed by the shell application at runtime:
+Vue and Svelte components need React wrappers to integrate with the React shell:
 
-- **React Remote** → `reactRemote/Button`
-- **Vue Remote** → `vueRemote/Counter`
-- **Svelte Remote** → `svelteRemote/Card`
+**Vue Wrapper Pattern:**
+```tsx
+// Counter.wrapper.tsx
+import { createApp } from 'vue';
+import Counter from './Counter.vue';
 
-The shell application dynamically loads these components using React Suspense for loading states.
+export default function VueCounter() {
+  const ref = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (ref.current) {
+      const app = createApp(Counter);
+      app.mount(ref.current);
+      return () => app.unmount();
+    }
+  }, []);
+  
+  return <div ref={ref} />;
+}
+```
 
-### Key Features
+## 📋 Exposed Modules Reference
 
-- ✅ **Multi-Framework Support**: React, Vue, and Svelte working together
-- ✅ **Independent Deployment**: Each remote can be deployed separately
-- ✅ **Shared Dependencies**: React and React-DOM shared as singletons
-- ✅ **Type Safety**: TypeScript support across all applications
-- ✅ **Standalone Mode**: Each remote can run independently
-- ✅ **Dynamic Imports**: Lazy loading with Suspense boundaries
+| Remote | Port | Module | Component Type | Build Tool |
+|--------|------|--------|----------------|------------|
+| reactRemote | 3001 | ./Button | React Button | Rsbuild |
+| vueRemote | 3002 | ./Counter | Vue Counter | Rsbuild |
+| svelteRemote | 3003 | ./Card | Svelte Card | Rsbuild |
+| reactViteRemote | 3004 | ./Card | React Card | Vite |
+| vueViteRemote | 3005 | ./Timeline | Vue Timeline | Vite |
+| svelteViteRemote | 3006 | ./Dashboard | Svelte Dashboard | Vite |
 
-## Building for Production
+## 🏗️ Standalone Mode
+
+Each remote can run independently for development:
+
+1. **Start the remote**: `cd apps/react-remote && pnpm dev`
+2. **Visit standalone URL**: `http://localhost:3001`
+3. **Develop in isolation**: Make changes and see HMR in action
+4. **Test integration**: Start the shell to see it in the federated app
+
+## 🔄 Development Workflow
+
+1. **Edit a component** in any remote
+2. **HMR updates** the standalone app instantly
+3. **Shell app** detects the change (if running)
+4. **No restart needed** for either app
+
+## 📦 Building for Production
 
 ```bash
-# Build all applications
-cd apps/shell && pnpm build
+# Build a single remote
 cd apps/react-remote && pnpm build
-cd apps/vue-remote && pnpm build
-cd apps/svelte-remote && pnpm build
+
+# Build all remotes
+for dir in apps/{react,vue,svelte}-{remote,vite-remote}; do
+  cd $dir && pnpm build && cd ../..
+done
+
+# Build shell
+cd apps/shell && pnpm build
 ```
 
-## Technology Stack
+## 🐛 Troubleshooting
 
-- **Build Tool**: Rsbuild with Rspack
-- **Module Federation**: @module-federation/enhanced 0.8.0
-- **React**: 18.3.1
-- **Vue**: 3.4.0
-- **Svelte**: 4.2.0
-- **TypeScript**: 5.0.0
+### Remote Won't Load in Shell
+1. Verify remote is running: `curl http://localhost:3001/mf-manifest.json`
+2. Check browser console for errors
+3. Verify CORS is enabled (Vite remotes)
+4. Check network tab for 404s
+
+### TypeScript Errors
+Add declarations to `apps/shell/src/remotes.d.ts`:
+```typescript
+declare module 'yourRemote/Component' {
+  const Component: React.ComponentType;
+  export default Component;
+}
+```
+
+### HMR Not Working
+- Rsbuild: Check `dev.assetPrefix` is set correctly
+- Vite: Ensure `server.cors: true` is set
+- Both: Verify `dev.hmr: true` (Rsbuild) or default HMR (Vite)
+
+## 📚 Additional Resources
+
+- **[Main README](../README.md)** - Quick start and overview
+- **[CLAUDE.md](../CLAUDE.md)** - Architecture and development guidelines
+- **[VITE-REMOTES.md](./VITE-REMOTES.md)** - Vite-specific details
+
+---
+
+For more information, see the [main documentation](../README.md).

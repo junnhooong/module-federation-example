@@ -7,6 +7,10 @@ export default defineConfig({
   server: {
     port: 3003,
   },
+  dev: {
+    hmr: true,
+    assetPrefix: 'http://localhost:3003',
+  },
   tools: {
     rspack: {
       plugins: [
@@ -15,7 +19,6 @@ export default defineConfig({
           exposes: {
             './Card': './src/components/Card.wrapper.tsx',
           },
-          filename: 'remoteEntry.js',
           shared: {
             svelte: {
               singleton: true,

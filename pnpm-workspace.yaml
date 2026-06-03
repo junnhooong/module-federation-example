@@ -1,3 +1,11 @@
 packages:
- - 'apps/**/*'
- - 'packages/**/*'
+  - apps/**/*
+  - packages/**/*
+
+ignoredBuiltDependencies:
+  - '@parcel/watcher'
+  - core-js
+  - svelte-preprocess
+
+onlyBuiltDependencies:
+  - esbuild

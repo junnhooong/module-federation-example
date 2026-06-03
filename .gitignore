@@ -10,3 +10,4 @@ coverage
 *.log
 .pnpm-debug.log
 @mf-types
+.mf

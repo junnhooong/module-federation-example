@@ -7,6 +7,10 @@ export default defineConfig({
   server: {
     port: 3002,
   },
+  dev: {
+    hmr: true,
+    assetPrefix: 'http://localhost:3002',
+  },
   tools: {
     rspack: {
       plugins: [
@@ -15,7 +19,6 @@ export default defineConfig({
           exposes: {
             './Counter': './src/components/Counter.wrapper.tsx',
           },
-          filename: 'remoteEntry.js',
           shared: {
             vue: {
               singleton: true,

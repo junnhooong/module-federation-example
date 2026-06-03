@@ -7,6 +7,10 @@ export default defineConfig({
   server: {
     port: 3001,
   },
+  dev: {
+    hmr: true,
+    assetPrefix: 'http://localhost:3001',
+  },
   tools: {
     rspack: {
       plugins: [
@@ -15,7 +19,6 @@ export default defineConfig({
           exposes: {
             './Button': './src/components/Button.tsx',
           },
-          filename: 'remoteEntry.js',
           shared: {
             react: {
               singleton: true,

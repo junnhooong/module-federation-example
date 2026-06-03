@@ -6,14 +6,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Module Federation 2.0 example project demonstrating micro-frontend architecture. The project uses a pnpm monorepo structure with multiple implementations:
 
-### Multi-Framework Shell (`apps/shell`, `apps/react-remote`, `apps/vue-remote`, `apps/svelte-remote`)
+### Multi-Framework Shell with Rsbuild Remotes
 **Main implementation** - Demonstrates Module Federation 2.0 with multiple frameworks working together:
 - **Shell app** (port 3000) - React-based orchestrator that consumes components from all remotes
-- **React Remote** (port 3001) - Exposes a React button component
-- **Vue Remote** (port 3002) - Exposes a Vue counter component
-- **Svelte Remote** (port 3003) - Exposes a Svelte card component
+- **React Remote** (port 3001) - Exposes a React button component (Rsbuild)
+- **Vue Remote** (port 3002) - Exposes a Vue counter component (Rsbuild)
+- **Svelte Remote** (port 3003) - Exposes a Svelte card component (Rsbuild)
 
 See `/apps/README.md` for detailed documentation on the multi-framework setup.
+
+### Multi-Framework Vite Remotes (`apps/*-vite-remote`)
+**Cross-build-tool example** - Demonstrates Module Federation with Vite instead of Rsbuild:
+- **React Vite Remote** (port 3004) - Exposes a React card component with likes counter
+- **Vue Vite Remote** (port 3005) - Exposes a Vue timeline component
+- **Svelte Vite Remote** (port 3006) - Exposes a Svelte dashboard component
+
+These remotes use `@originjs/vite-plugin-federation` and can be consumed by the same shell app alongside Rsbuild remotes. See `/apps/VITE-REMOTES.md` for details.
 
 ### Rsbuild Implementation (`apps/rsbuild/`)
 - **Host app** - Runs on port 3000, exposes a `ProviderComponent`
@@ -41,16 +49,25 @@ Each app has two config files:
 
 ```
 apps/
-  shell/           # Multi-framework shell app (port 3000)
-  react-remote/    # React remote component (port 3001)
-  vue-remote/      # Vue remote component (port 3002)
-  svelte-remote/   # Svelte remote component (port 3003)
+  shell/                # Multi-framework shell app (port 3000)
+  
+  # Rsbuild remotes
+  react-remote/         # React remote (port 3001)
+  vue-remote/           # Vue remote (port 3002)
+  svelte-remote/        # Svelte remote (port 3003)
+  
+  # Vite remotes
+  react-vite-remote/    # React Vite remote (port 3004)
+  vue-vite-remote/      # Vue Vite remote (port 3005)
+  svelte-vite-remote/   # Svelte Vite remote (port 3006)
+  
+  # Other examples
   rsbuild/
-    host/          # Rsbuild host application (port 3000)
-    remote/        # Rsbuild remote application (port 3001)
+    host/               # Rsbuild host application
+    remote/             # Rsbuild remote application
   js/
-    host/          # Modern.js host application (port 3001)
-    remote/        # Modern.js remote application
+    host/               # Modern.js host application
+    remote/             # Modern.js remote application
 ```
 
 ### Bootstrap Pattern
@@ -61,23 +78,36 @@ Both apps use a bootstrap pattern where `index.tsx` dynamically imports `bootstr
 
 ### Multi-Framework Apps (Primary Example)
 
-To run the complete multi-framework setup, start all four applications:
+#### Start All Applications at Once
 
 ```bash
-# Terminal 1 - React Remote
+# Start all 6 remotes (Rsbuild + Vite) and the shell
+./start-all.sh
+
+# This starts:
+# - Shell (port 3000)
+# - Rsbuild remotes: React (3001), Vue (3002), Svelte (3003)
+# - Vite remotes: React (3004), Vue (3005), Svelte (3006)
+```
+
+#### Start Applications Individually
+
+```bash
+# Rsbuild remotes
 cd apps/react-remote && pnpm dev      # http://localhost:3001
-
-# Terminal 2 - Vue Remote
 cd apps/vue-remote && pnpm dev        # http://localhost:3002
-
-# Terminal 3 - Svelte Remote
 cd apps/svelte-remote && pnpm dev     # http://localhost:3003
 
-# Terminal 4 - Shell
+# Vite remotes
+cd apps/react-vite-remote && pnpm dev    # http://localhost:3004
+cd apps/vue-vite-remote && pnpm dev      # http://localhost:3005
+cd apps/svelte-vite-remote && pnpm dev   # http://localhost:3006
+
+# Shell
 cd apps/shell && pnpm dev             # http://localhost:3000
 ```
 
-Each remote can also run standalone for development. See `/apps/README.md` for more details.
+Each remote can also run standalone for development. See `/apps/README.md` and `/apps/VITE-REMOTES.md` for more details.
 
 ### Rsbuild Apps
 
@@ -120,7 +150,13 @@ pnpm reset                       # Remove all node_modules
 - **Build tool**: Rsbuild 2.0.0-beta.2
 - **Framework**: React 19.2.3
 - **Language**: TypeScript 5.7.2
-- **Module Federation**: @module-federation/rsbuild-plugin 2.5.0
+- **Module Federation**: @module-federation/enhanced 2.5.0
+
+### Vite Apps
+- **Build tool**: Vite 5.4.11
+- **Frameworks**: React 18.3.1, Vue 3.4.0, Svelte 4.2.0
+- **Language**: TypeScript 5.7.2
+- **Module Federation**: @originjs/vite-plugin-federation 1.4.1
 
 ### Modern.js Apps
 - **Framework**: Modern.js (canary build)
